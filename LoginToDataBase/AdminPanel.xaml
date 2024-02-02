@@ -14,6 +14,6 @@
             <Button Content="Ban" x:Name="BanButton" Width="100" Height="30" Margin="10" Click="BanButton_Click"/>
             
         </StackPanel>
-        <Label x:Name="labelAdminPanel" Content="" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,70,0,0"/>
+        <Label x:Name="labelAdminPanel" Content="" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,45,0,0" RenderTransformOrigin="0.446,0.322"/>
     </Grid>
 </Window>

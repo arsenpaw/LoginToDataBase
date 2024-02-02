@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Relational;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,12 +22,17 @@ using System.Windows.Shapes;
 
 namespace LoginToDataBase
 {
-  
+
     /// <summary>
     /// Interaction logic for AdminPanel.xaml
     /// </summary>
     public partial class AdminPanel : Window
     {
+        private readonly DB db;
+        private readonly DataTable table;
+        private readonly MySqlDataAdapter adapter;
+        private readonly AccesStatus acces;
+
         private static AdminPanel single = null;
         public static AdminPanel GetInstanseURL()
         {
@@ -41,6 +47,10 @@ namespace LoginToDataBase
         protected AdminPanel()
         {
             InitializeComponent();
+            db = new DB();
+            table = new DataTable();
+            adapter = new MySqlDataAdapter();
+            acces = new AccesStatus();
             LayoutUpdated += AdminPanel_LayoutUpdated;
         }
 
@@ -56,31 +66,30 @@ namespace LoginToDataBase
             }
             MakeAdminButton.Visibility = Visibility.Visible;
             if (SelectedUser.status != DbConstatnts.bannedStatus)
-            {               
+            {
                 BanButton.Content = "Ban";
                 BanButton.Click += BanButton_Click;
             }
-            else 
+            else
             {
                 MakeAdminButton.Visibility = Visibility.Collapsed;
                 BanButton.Content = "Unban";
                 BanButton.Click += UnbanButton_Click;
-                
+
             }
             if (SelectedUser.status == DbConstatnts.adminStatus)
-            {             
+            {
                 MakeAdminButton.Content = "Downgrade to user";
                 MakeAdminButton.Click += BackToUserButton_Click;
             }
             else
-            {              
+            {
                 MakeAdminButton.Content = "Upgrade to admin";
                 MakeAdminButton.Click += MakeAdminButton_Click;
             }
 
         }
 
-       
 
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -92,57 +101,84 @@ namespace LoginToDataBase
         {
             try
             {
-                AccesStatus acces = new AccesStatus();
-                DB db = new DB();
-                DataTable table = new DataTable();
-                table.Clear();
-                MySqlDataAdapter adapter = new MySqlDataAdapter();
                 MySqlCommand command = new MySqlCommand("UPDATE auntefication SET status = 'User' WHERE login = @ul AND id = @id", db.GetConnection());
                 command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
                 command.Parameters.Add("@id", MySqlDbType.VarChar).Value = SelectedUser.id;
                 db.openConnection();
                 acces.defineAccesStatus(adapter, command: command);
                 acces.show_status(labelAdminPanel);
-                db.closeConnection();
+
             }
-            catch (Exception ex) 
-            { 
+            catch (Exception ex)
+            {
                 Debug.WriteLine(ex.Message);
                 labelAdminPanel.Content = "Reselect the person";
             }
+            finally { db.closeConnection(); table.Clear(); }
         }
         private void MakeAdminButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                AccesStatus acces = new AccesStatus();
-                DB db = new DB();
-                DataTable table = new DataTable();
-                table.Clear();
-                MySqlDataAdapter adapter = new MySqlDataAdapter();
+
                 MySqlCommand command = new MySqlCommand("UPDATE auntefication SET status = 'Admin' WHERE login = @ul AND id = @id", db.GetConnection());
                 command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
                 command.Parameters.Add("@id", MySqlDbType.VarChar).Value = SelectedUser.id;
                 db.openConnection();
                 acces.defineAccesStatus(adapter, command: command);
                 acces.show_status(labelAdminPanel);
-                db.closeConnection();
             }
-            catch(Exception ex) 
+            catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 labelAdminPanel.Content = "Reselect the person";
             }
+            finally { db.closeConnection(); table.Clear(); }
         }
 
+        private void InsertIntoBanTable()
+        {
+            try
+            {
+                MySqlCommand command_ban = new MySqlCommand("INSERT INTO banned_users (`id`,`login`,`banned_by`,`reasone`) VALUES (@id,@ul,@bb,@re)", db.GetConnection());
+                command_ban.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
+                command_ban.Parameters.Add("@id", MySqlDbType.Int32).Value = SelectedUser.id;
+                command_ban.Parameters.Add("@bb", MySqlDbType.VarChar).Value = CurrentUser.login;
+                command_ban.Parameters.Add("@re", MySqlDbType.VarChar).Value = "Reason for banning";
+                acces.defineAccesStatus(adapter, command: command_ban);
+                acces.show_status(labelAdminPanel);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                labelAdminPanel.Content = "Reselect the person";
+            }
+
+        }
+        private void DeletFromBanTable()
+        {
+            try
+            {
+                MySqlCommand command_del = new MySqlCommand("DELETE FROM banned_users WHERE id = @id AND login = @ul", db.GetConnection());
+                command_del.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
+                command_del.Parameters.Add("@id", MySqlDbType.Int32).Value = SelectedUser.id;
+                acces.defineAccesStatus(adapter, command: command_del);
+                acces.show_status(labelAdminPanel);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                labelAdminPanel.Content = "Reselect the person";
+            }
+
+
+        }
         private void BanButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                AccesStatus acces = new AccesStatus();
-                DB db = new DB();
-                DataTable table = new DataTable();
-                table.Clear();
+
+
                 MySqlDataAdapter adapter = new MySqlDataAdapter();
                 MySqlCommand command = new MySqlCommand("UPDATE auntefication SET status = @st WHERE login = @ul AND id = @id", db.GetConnection());
                 command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
@@ -151,23 +187,20 @@ namespace LoginToDataBase
                 db.openConnection();
                 acces.defineAccesStatus(adapter, command: command);
                 acces.show_status(labelAdminPanel);
-                db.closeConnection();
+                InsertIntoBanTable();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 labelAdminPanel.Content = "Reselect the person";
             }
+            finally { db.closeConnection(); table.Clear(); }
         }
         private void UnbanButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                AccesStatus acces = new AccesStatus();
-                DB db = new DB();
-                DataTable table = new DataTable();
-                table.Clear();
-                MySqlDataAdapter adapter = new MySqlDataAdapter();
+
                 MySqlCommand command = new MySqlCommand("UPDATE auntefication SET status = @st WHERE login = @ul AND id = @id", db.GetConnection());
                 command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
                 command.Parameters.Add("@id", MySqlDbType.VarChar).Value = SelectedUser.id;
@@ -175,13 +208,14 @@ namespace LoginToDataBase
                 db.openConnection();
                 acces.defineAccesStatus(adapter, command: command);
                 acces.show_status(labelAdminPanel);
-                db.closeConnection();
+                DeletFromBanTable();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
                 labelAdminPanel.Content = "Reselect the person";
             }
+            finally { db.closeConnection(); table.Clear(); }
         }
     }
 }

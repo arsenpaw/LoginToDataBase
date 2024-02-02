@@ -57,7 +57,7 @@ namespace LoginToDataBase
                 else
                 {
                     table.Clear();
-                    MySqlCommand command = new MySqlCommand("SELECT * FROM `auntefication` WHERE `login` = @ul AND `password` = @up", db.GetConnection());
+                    MySqlCommand command = new MySqlCommand("SELECT `id` FROM `auntefication` WHERE `login` = @ul AND `password` = @up", db.GetConnection());
                     command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = login;
                     command.Parameters.Add("@up", MySqlDbType.VarChar).Value = password;
                     adapter.SelectCommand = command;
@@ -66,10 +66,18 @@ namespace LoginToDataBase
                     acces.show_status(lblMessage);
                     if (acces.accesStatus)
                     {
-
+                        CurrentUser.id = Convert.ToInt32(table.Rows[0]["id"]);
                         CurrentUser.login = login;
                         CurrentUser.password = password;
-                        mainFrame.Content = new main();
+                        if (CurrentUser.GetUserStatus() == DbConstatnts.bannedStatus)
+                        {
+                            mainFrame.Content = new BannedPage();
+                        }
+                        else
+                        {
+                            mainFrame.Content = new main();
+                        }
+                        
                     }
                 }
             }
