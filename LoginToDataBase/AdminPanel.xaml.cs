@@ -15,6 +15,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 
@@ -136,25 +137,7 @@ namespace LoginToDataBase
             finally { db.closeConnection(); table.Clear(); }
         }
 
-        private void InsertIntoBanTable()
-        {
-            try
-            {
-                MySqlCommand command_ban = new MySqlCommand("INSERT INTO banned_users (`id`,`login`,`banned_by`,`reasone`) VALUES (@id,@ul,@bb,@re)", db.GetConnection());
-                command_ban.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
-                command_ban.Parameters.Add("@id", MySqlDbType.Int32).Value = SelectedUser.id;
-                command_ban.Parameters.Add("@bb", MySqlDbType.VarChar).Value = CurrentUser.login;
-                command_ban.Parameters.Add("@re", MySqlDbType.VarChar).Value = "Reason for banning";
-                acces.defineAccesStatus(adapter, command: command_ban);
-                acces.show_status(labelAdminPanel);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                labelAdminPanel.Content = "Reselect the person";
-            }
 
-        }
         private void DeletFromBanTable()
         {
             try
@@ -175,32 +158,15 @@ namespace LoginToDataBase
         }
         private void BanButton_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
+            labelAdminPanel1.Visibility = Visibility.Hidden;
+            adminFrame.Content = new AddReasonBan();
+            labelAdminPanel1.Visibility = Visibility.Visible;
 
-
-                MySqlDataAdapter adapter = new MySqlDataAdapter();
-                MySqlCommand command = new MySqlCommand("UPDATE auntefication SET status = @st WHERE login = @ul AND id = @id", db.GetConnection());
-                command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
-                command.Parameters.Add("@id", MySqlDbType.VarChar).Value = SelectedUser.id;
-                command.Parameters.Add("@st", MySqlDbType.VarChar).Value = DbConstatnts.bannedStatus;
-                db.openConnection();
-                acces.defineAccesStatus(adapter, command: command);
-                acces.show_status(labelAdminPanel);
-                InsertIntoBanTable();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-                labelAdminPanel.Content = "Reselect the person";
-            }
-            finally { db.closeConnection(); table.Clear(); }
         }
         private void UnbanButton_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-
                 MySqlCommand command = new MySqlCommand("UPDATE auntefication SET status = @st WHERE login = @ul AND id = @id", db.GetConnection());
                 command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
                 command.Parameters.Add("@id", MySqlDbType.VarChar).Value = SelectedUser.id;
@@ -209,6 +175,7 @@ namespace LoginToDataBase
                 acces.defineAccesStatus(adapter, command: command);
                 acces.show_status(labelAdminPanel);
                 DeletFromBanTable();
+
             }
             catch (Exception ex)
             {

@@ -32,8 +32,7 @@ namespace LoginToDataBase
                 DB db = new DB();
                 MySqlDataAdapter adapter = new MySqlDataAdapter();
                 DataTable table = new DataTable();
-
-                 MySqlCommand command = new MySqlCommand("SELECT * FROM `banned_users` WHERE `id` = @id AND `login` = @ul", db.GetConnection());
+                MySqlCommand command = new MySqlCommand("SELECT * FROM `banned_users` WHERE `id` = @id AND `login` = @ul", db.GetConnection());
                 command.Parameters.Add("@id", MySqlDbType.Int32).Value = CurrentUser.id;
                 command.Parameters.Add("@ul", MySqlDbType.VarChar).Value = CurrentUser.login;
 
@@ -42,17 +41,13 @@ namespace LoginToDataBase
 
                 if (table.Rows.Count > 0)
                 {
-                    
                     string bannedBy = table.Rows[0]["banned_by"].ToString();
                     string reason = table.Rows[0]["reasone"].ToString();
-
-                    
                     LabelAdminName.Text = $"Admin: {bannedBy}";
                     labelReason.Text = $"Reason: {reason}";
                 }
                 else
                 {
- 
                     LabelAdminName.Text = "N/A";
                     labelReason.Text = "N/A";
                 }
@@ -63,7 +58,7 @@ namespace LoginToDataBase
                 Debug.WriteLine(ex.Message);
                 LabelBannedSmall.Text = "ERRORE";
             }
-          
+
         }
 
         private void GoBackButton_Click(object sender, RoutedEventArgs e)

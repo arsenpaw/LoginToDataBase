@@ -1,0 +1,24 @@
+﻿<Page x:Class="LoginToDataBase.AddReasonBan"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:LoginToDataBase"
+      mc:Ignorable="d" 
+      d:DesignHeight="100" d:DesignWidth="300"
+      Title="AddReasonBan" Background="White">
+
+    <Grid Margin="57,0,0,0">
+        <TextBlock   FontSize="12" FontWeight="Bold" Text=" Ban Reason:"  Height="16" VerticalAlignment="Top" Margin="-55,34,205,0"  />
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="201" Height="64">
+            
+            <TextBox x:Name="BanReasonTextBox" Width="198" Height="40" TextChanged="BanReasonTextBox_TextChanged" Text="" />
+            <StackPanel Orientation="Horizontal" Height="20" Width="200">
+                <Button Content="OK"  Click="OKButton_Click" Width="100"/>
+                <Button Content="Cancel" Width="100" Click="CancelButton_Click"/>
+            </StackPanel>
+        </StackPanel>
+        
+
+    </Grid>
+</Page>

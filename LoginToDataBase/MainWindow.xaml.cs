@@ -35,12 +35,10 @@ namespace LoginToDataBase
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
-            {
-                // Call your function here
                 btnLogin_Click(sender, e);
-            }
+
         }
-  
+
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
             string login, password;
@@ -87,7 +85,7 @@ namespace LoginToDataBase
                         {
                             mainFrame.Content = new main();
                         }
-                        
+
                     }
                 }
             }
