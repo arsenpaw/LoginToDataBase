@@ -87,48 +87,32 @@ namespace LoginToDataBase
         {
             string login, status;
             int id;
-            DataRowView rowView;
-           
-
+            
             if (dataGrid.SelectedItems.Count > 1)
             {
                 captionMain.Foreground = new SolidColorBrush(Colors.Red);
                 captionMain.Text = "You can not delete multiple people";
                 return;
             }
-            try
-            {
-                rowView = (DataRowView)dataGrid.SelectedItem;
 
-            }
-            catch (System.InvalidCastException ex)
+           
+            if (dataGrid.SelectedItem is DataRowView rowView)
             {
-                Debug.WriteLine($"Error: {ex.Message}");
-                Debug.WriteLine($"StackTrace: {ex.StackTrace}");
-                captionMain.Text = $"Empty line selected .";
-                return;
-            }
-            if (rowView == null)
-                return;
-            try
-            {
-
                 object[] selectedItems = rowView.Row.ItemArray.ToArray();
-                id = Convert.ToInt32(selectedItems[0]);
-                login = Convert.ToString(selectedItems[1]);
-                status = Convert.ToString(selectedItems[3]);
+                id =  (Int32)selectedItems[0] ;
+                login = selectedItems[1] as String;
+                status = selectedItems[3] as String;
                 SelectedUser.status = status;
                 SelectedUser.id = id;
                 SelectedUser.login = login;
+            }
+            else
+            {
+                captionMain.Foreground = new SolidColorBrush(Colors.Red);
+                captionMain.Text = "You can not select emty line";
                 
             }
-            catch (Exception exParse)
-            {
-                SelectedUser.status = null;
-                SelectedUser.id = 0;
-                SelectedUser.login = null;
-                Debug.WriteLine(exParse.Message);
-            }
+          
 
         }
         private void showDeletedAcount(int rowsAffected, int id, string status, string login)

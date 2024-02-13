@@ -27,13 +27,16 @@ namespace LoginToDataBase
         private readonly DataTable table;
         private readonly MySqlDataAdapter adapter;
         private readonly AccesStatus acces;
-        public AddReasonBan()
+        AdminPanel adminPanel;
+        public AddReasonBan(AdminPanel adminPanel)
         {
             InitializeComponent();
             db = new DB();
             table = new DataTable();
             adapter = new MySqlDataAdapter();
             acces = new AccesStatus();
+            this.adminPanel = adminPanel;
+            adminPanel.labelAdminPanel.Content = "What is the reasone?";
         }
 
         private void InsertIntoBanTable(string banReasone)
@@ -44,10 +47,19 @@ namespace LoginToDataBase
                 command_ban.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
                 command_ban.Parameters.Add("@id", MySqlDbType.Int32).Value = SelectedUser.id;
                 command_ban.Parameters.Add("@bb", MySqlDbType.VarChar).Value = CurrentUser.login;
-                command_ban.Parameters.Add("@re", MySqlDbType.VarChar).Value = banReasone;
-                
-                Debug.WriteLine(acces.defineAccesStatus(adapter, command: command_ban));
-                // acces.show_status(labelAdminPanel);
+                command_ban.Parameters.Add("@re", MySqlDbType.VarChar).Value = banReasone;   
+                acces.defineAccesStatus(adapter, command: command_ban);
+                acces.show_status(adminPanel.labelAdminPanel);
+                int rowsAffected = command_ban.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    adminPanel.labelAdminPanel.Content = "User banned and inserted into the table";
+                }
+                else
+                {
+                    adminPanel.labelAdminPanel.Content = "User was not inserted into ban table";
+                }
+
             }
             catch (Exception ex)
             {
@@ -67,8 +79,17 @@ namespace LoginToDataBase
                 command.Parameters.Add("@id", MySqlDbType.Int32).Value = SelectedUser.id;
                 command.Parameters.Add("@st", MySqlDbType.VarChar).Value = DbConstatnts.bannedStatus;
                 db.openConnection();
-                Debug.WriteLine(acces.defineAccesStatus(adapter, command: command));
-                InsertIntoBanTable(banReasone);            
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    InsertIntoBanTable(banReasone);
+                }
+                else
+                {
+                    adminPanel.labelAdminPanel.Content = "User status was not changed";
+                }
+               
+               
             }
             catch (Exception ex)
             {

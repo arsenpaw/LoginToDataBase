@@ -40,7 +40,7 @@ namespace LoginToDataBase
             return single;
         }
         public static AdminPanel Initialize()
-        {
+        {      
             if (single == null)
                 single = new AdminPanel();
             return single;
@@ -145,8 +145,9 @@ namespace LoginToDataBase
                 MySqlCommand command_del = new MySqlCommand("DELETE FROM banned_users WHERE id = @id AND login = @ul", db.GetConnection());
                 command_del.Parameters.Add("@ul", MySqlDbType.VarChar).Value = SelectedUser.login;
                 command_del.Parameters.Add("@id", MySqlDbType.Int32).Value = SelectedUser.id;
-                acces.defineAccesStatus(adapter, command: command_del);
-                acces.show_status(labelAdminPanel);
+                int rowsAffectreed = command_del.ExecuteNonQuery();
+                if (rowsAffectreed > 0) { labelAdminPanel.Content = "Sucesfully unbaned"; }
+                else {labelAdminPanel.Content = "Cannot delet from banned users "; }
             }
             catch (Exception ex)
             {
@@ -159,7 +160,7 @@ namespace LoginToDataBase
         private void BanButton_Click(object sender, RoutedEventArgs e)
         {
             labelAdminPanel1.Visibility = Visibility.Hidden;
-            adminFrame.Content = new AddReasonBan();
+            adminFrame.Content = new AddReasonBan(this);
             labelAdminPanel1.Visibility = Visibility.Visible;
 
         }
@@ -172,9 +173,16 @@ namespace LoginToDataBase
                 command.Parameters.Add("@id", MySqlDbType.VarChar).Value = SelectedUser.id;
                 command.Parameters.Add("@st", MySqlDbType.VarChar).Value = DbConstatnts.userStatus;
                 db.openConnection();
-                acces.defineAccesStatus(adapter, command: command);
-                acces.show_status(labelAdminPanel);
-                DeletFromBanTable();
+                int rowsAffected = command.ExecuteNonQuery();
+                if (rowsAffected > 0)
+                {
+                    DeletFromBanTable();
+                }
+                else
+                {
+                    labelAdminPanel.Content = "User status was not changed";
+                }
+              
 
             }
             catch (Exception ex)
@@ -183,6 +191,11 @@ namespace LoginToDataBase
                 labelAdminPanel.Content = "Reselect the person";
             }
             finally { db.closeConnection(); table.Clear(); }
+        }
+
+        private void OpenLogsButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

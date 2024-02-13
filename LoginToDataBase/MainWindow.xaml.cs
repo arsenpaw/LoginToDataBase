@@ -17,7 +17,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
-
+using NLog;
+using NLog.Web;
 
 namespace LoginToDataBase
 {
@@ -38,7 +39,7 @@ namespace LoginToDataBase
                 btnLogin_Click(sender, e);
 
         }
-
+      
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
             string login, password;
@@ -77,12 +78,15 @@ namespace LoginToDataBase
                         CurrentUser.id = Convert.ToInt32(table.Rows[0]["id"]);
                         CurrentUser.login = login;
                         CurrentUser.password = password;
+                        var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
                         if (CurrentUser.GetUserStatus() == DbConstatnts.bannedStatus)
                         {
+                            logger.Trace($"User {CurrentUser.id} with {CurrentUser.login} loged in.");
                             mainFrame.Content = new BannedPage();
                         }
                         else
                         {
+                            logger.Trace($"User {CurrentUser.id} with {CurrentUser.login} loged in.");
                             mainFrame.Content = new main();
                         }
 
